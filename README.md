@@ -19,3 +19,4 @@ samples, guidance on mobile development, and a full API reference.
   folder structure is added the main is modified
   
 # phase-2
+    the dependency is added provider ,dio and flutter_Secure_storage
