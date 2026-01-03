@@ -16,4 +16,6 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 # phase-1
-  folder structure is added
+  folder structure is added the main is modified
+  
+# phase-2
