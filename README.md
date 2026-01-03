@@ -24,3 +24,4 @@ samples, guidance on mobile development, and a full API reference.
 # phase-3
   api_constants is added
   token_stoage is added
+  api client is added
