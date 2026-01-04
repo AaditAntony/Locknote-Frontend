@@ -27,3 +27,4 @@ samples, guidance on mobile development, and a full API reference.
   api client is added
 
 # phase-4
+  the usermodel is added
