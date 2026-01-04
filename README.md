@@ -28,3 +28,4 @@ samples, guidance on mobile development, and a full API reference.
 
 # phase-4
   the usermodel is added
+  the notemodel is added
