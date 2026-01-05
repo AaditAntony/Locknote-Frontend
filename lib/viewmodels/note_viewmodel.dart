@@ -15,69 +15,22 @@ class NoteViewModel extends ChangeNotifier {
   String? get error => _error;
 
   Future<void> fetchNotes() async {
-    _setLoading(true);
+    print('🟡 NoteViewModel.fetchNotes() START');
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      _notes = await _noteService.getNotes();
-      _error = null;
+      _notes = await _noteService.fetchNotes();
+      print('✅ Notes loaded: ${_notes.length}');
     } catch (e) {
       _error = 'Failed to load notes';
+      print('❌ Error: $e');
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
+      print('🔵 NoteViewModel.fetchNotes() END');
     }
-  }
-
-  Future<void> addNote({
-    required String title,
-    required String content,
-  }) async {
-    _setLoading(true);
-    try {
-      await _noteService.createNote(
-        title: title,
-        content: content,
-      );
-      await fetchNotes();
-    } catch (e) {
-      _error = 'Failed to create note';
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> updateNote({
-    required int id,
-    required String title,
-    required String content,
-  }) async {
-    _setLoading(true);
-    try {
-      await _noteService.updateNote(
-        id: id,
-        title: title,
-        content: content,
-      );
-      await fetchNotes();
-    } catch (e) {
-      _error = 'Failed to update note';
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> deleteNote(int id) async {
-    _setLoading(true);
-    try {
-      await _noteService.deleteNote(id);
-      await fetchNotes();
-    } catch (e) {
-      _error = 'Failed to delete note';
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  void _setLoading(bool value) {
-    _isLoading = value;
-    notifyListeners();
   }
 }
