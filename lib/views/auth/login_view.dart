@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:locknote/views/auth/register_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/auth_viewmodel.dart';
@@ -81,6 +82,18 @@ class _LoginViewState extends State<LoginView> {
                   },
                   child: const Text('Login'),
                 ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const RegisterView(),
+                    ),
+                  );
+                },
+                child: const Text("Don't have an account? Register"),
+              ),
+
             ],
           ),
         ),
