@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../core/storage/token_storage.dart';
 import '../services/auth_service.dart';
+
 
 class AuthViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -10,41 +12,60 @@ class AuthViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
+    debugPrint('🟡 AuthViewModel.login() START');
+    debugPrint('📧 Email: $email');
+
+    _error = null;
+    _setLoading(true);
+
+    try {
+      debugPrint('➡️ Calling AuthService.login()');
+
+      final token = await _authService.login(
+        email: email,
+        password: password,
+      );
+
+      debugPrint('✅ Token received: $token');
+
+      await TokenStorage.saveToken(token);
+      debugPrint('🔐 Token saved to secure storage');
+    } catch (e) {
+      debugPrint('❌ Login error in ViewModel: $e');
+      _error = 'Invalid email or password';
+    } finally {
+      _setLoading(false);
+      debugPrint('🔵 AuthViewModel.login() END');
+    }
+  }
+
   Future<void> register({
     required String username,
     required String email,
     required String password,
   }) async {
+    debugPrint('🟡 AuthViewModel.register() START');
+
+    _error = null;
     _setLoading(true);
+
     try {
       await _authService.register(
         username: username,
         email: email,
         password: password,
       );
-      _error = null;
+      debugPrint('✅ Registration success');
     } catch (e) {
+      debugPrint('❌ Registration error: $e');
       _error = 'Registration failed';
     } finally {
       _setLoading(false);
-    }
-  }
-
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
-    _setLoading(true);
-    try {
-      await _authService.login(
-        email: email,
-        password: password,
-      );
-      _error = null;
-    } catch (e) {
-      _error = 'Login failed';
-    } finally {
-      _setLoading(false);
+      debugPrint('🔵 AuthViewModel.register() END');
     }
   }
 

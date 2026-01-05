@@ -1,46 +1,23 @@
-import 'package:dio/dio.dart';
 import '../core/api/api_client.dart';
+import '../core/constants/api_constants.dart';
 import '../models/note_model.dart';
 
 class NoteService {
-  final Dio _dio = ApiClient.dio;
+  Future<List<NoteModel>> fetchNotes() async {
+    print('🟡 NoteService.fetchNotes() START');
 
-  Future<List<NoteModel>> getNotes() async {
-    final response = await _dio.get('/notes');
-
-    return (response.data as List)
-        .map((json) => NoteModel.fromJson(json))
-        .toList();
-  }
-
-  Future<void> createNote({
-    required String title,
-    required String content,
-  }) async {
-    await _dio.post(
-      '/notes',
-      data: {
-        'title': title,
-        'content': content,
-      },
+    final response = await ApiClient.dio.get(
+      ApiConstants.notes,
     );
-  }
 
-  Future<void> updateNote({
-    required int id,
-    required String title,
-    required String content,
-  }) async {
-    await _dio.put(
-      '/notes/$id',
-      data: {
-        'title': title,
-        'content': content,
-      },
-    );
-  }
+    print('📥 Status: ${response.statusCode}');
+    print('📦 Raw response: ${response.data}');
 
-  Future<void> deleteNote(int id) async {
-    await _dio.delete('/notes/$id');
+    final List list = response.data as List;
+
+    final notes = list.map((e) => NoteModel.fromJson(e)).toList();
+
+    print('✅ Parsed notes count: ${notes.length}');
+    return notes;
   }
 }

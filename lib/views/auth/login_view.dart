@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:locknote/views/auth/register_view.dart';
 import 'package:provider/provider.dart';
-
-import '../../../viewmodels/auth_viewmodel.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 import '../notes/note_list_view.dart';
+import 'register_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -29,10 +28,7 @@ class _LoginViewState extends State<LoginView> {
     final authVM = context.watch<AuthViewModel>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -42,24 +38,16 @@ class _LoginViewState extends State<LoginView> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email is required';
-                  }
-                  return null;
-                },
+                validator: (v) =>
+                v == null || v.isEmpty ? 'Email required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
+                validator: (v) =>
+                v == null || v.length < 6 ? 'Min 6 chars' : null,
               ),
               const SizedBox(height: 24),
 
@@ -68,27 +56,41 @@ class _LoginViewState extends State<LoginView> {
               else
                 ElevatedButton(
                   onPressed: () async {
+                    debugPrint('🟡 Login button pressed');
+
                     if (_formKey.currentState!.validate()) {
+                      debugPrint('🟢 Form valid');
+
                       await authVM.login(
                         email: _emailController.text.trim(),
                         password: _passwordController.text.trim(),
                       );
 
-                      if (authVM.error != null && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(authVM.error!)),
-                        );
-                      } else if (context.mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const NotesListView()),
-                        );
-                      }
+                      debugPrint('🔵 Login call returned');
 
+                      if (authVM.error != null) {
+                        debugPrint('🔴 Login error: ${authVM.error}');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(authVM.error!)),
+                          );
+                        }
+                      } else {
+                        debugPrint('✅ Login success → Navigate');
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const NotesListView(),
+                            ),
+                          );
+                        }
+                      }
                     }
                   },
                   child: const Text('Login'),
                 ),
+
               TextButton(
                 onPressed: () {
                   Navigator.push(
@@ -100,7 +102,6 @@ class _LoginViewState extends State<LoginView> {
                 },
                 child: const Text("Don't have an account? Register"),
               ),
-
             ],
           ),
         ),
