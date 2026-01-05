@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:locknote/views/login_view.dart';
 import 'package:provider/provider.dart';
 
 import 'viewmodels/auth_viewmodel.dart';
@@ -20,18 +21,9 @@ class LockNoteApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: Text(
-              'LockNote App',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ),
+        home:  LoginView(),
+
+    ),
     );
   }
 }
