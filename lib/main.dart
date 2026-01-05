@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locknote/views/login_view.dart';
+import 'package:locknote/views/auth/login_view.dart';
 import 'package:provider/provider.dart';
 
 import 'viewmodels/auth_viewmodel.dart';
