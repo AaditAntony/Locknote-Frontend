@@ -16,7 +16,7 @@ class _NotesListViewState extends State<NotesListView> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NoteViewModel>().fetchNotes();
     });
   }
