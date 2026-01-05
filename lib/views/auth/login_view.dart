@@ -3,6 +3,7 @@ import 'package:locknote/views/auth/register_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/auth_viewmodel.dart';
+import '../notes/note_list_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -77,7 +78,13 @@ class _LoginViewState extends State<LoginView> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(authVM.error!)),
                         );
+                      } else if (context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const NotesListView()),
+                        );
                       }
+
                     }
                   },
                   child: const Text('Login'),
