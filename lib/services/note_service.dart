@@ -1,23 +1,49 @@
+import 'package:dio/dio.dart';
 import '../core/api/api_client.dart';
 import '../core/constants/api_constants.dart';
-import '../models/note_model.dart';
 
 class NoteService {
-  Future<List<NoteModel>> fetchNotes() async {
-    print('🟡 NoteService.fetchNotes() START');
+  final Dio _dio = ApiClient.dio;
 
-    final response = await ApiClient.dio.get(
-      ApiConstants.notes,
-    );
+  /// Create a new note
+  Future<void> createNote({
+    required String title,
+    required String content,
+  }) async {
+    try {
+      print('🟡 NoteService.createNote()');
+      print('📝 Title: $title');
 
-    print('📥 Status: ${response.statusCode}');
-    print('📦 Raw response: ${response.data}');
+      final response = await _dio.post(
+        ApiConstants.notes,
+        data: {
+          'title': title,
+          'content': content,
+        },
+      );
 
-    final List list = response.data as List;
+      print('📥 Status: ${response.statusCode}');
+      print('📦 Response: ${response.data}');
+    } on DioException catch (e) {
+      print('❌ Create note error: ${e.response?.data}');
+      rethrow;
+    }
+  }
 
-    final notes = list.map((e) => NoteModel.fromJson(e)).toList();
+  /// Fetch all notes
+  Future<List<dynamic>> fetchNotes() async {
+    try {
+      print('🟡 NoteService.fetchNotes()');
 
-    print('✅ Parsed notes count: ${notes.length}');
-    return notes;
+      final response = await _dio.get(ApiConstants.notes);
+
+      print('📥 Status: ${response.statusCode}');
+      print('📦 Notes count: ${response.data.length}');
+
+      return response.data;
+    } on DioException catch (e) {
+      print('❌ Fetch notes error: ${e.response?.data}');
+      rethrow;
+    }
   }
 }
