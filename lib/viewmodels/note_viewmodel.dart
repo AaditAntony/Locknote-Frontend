@@ -5,32 +5,63 @@ import '../services/note_service.dart';
 class NoteViewModel extends ChangeNotifier {
   final NoteService _noteService = NoteService();
 
-  List<NoteModel> _notes = [];
-  List<NoteModel> get notes => _notes;
-
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   String? _error;
   String? get error => _error;
 
-  Future<void> fetchNotes() async {
-    print('🟡 NoteViewModel.fetchNotes() START');
+  List<NoteModel> _notes = [];
+  List<NoteModel> get notes => _notes;
 
-    _isLoading = true;
+  /// Fetch notes
+  Future<void> fetchNotes() async {
+    _setLoading(true);
     _error = null;
-    notifyListeners();
 
     try {
-      _notes = await _noteService.fetchNotes();
-      print('✅ Notes loaded: ${_notes.length}');
+      print('🟡 NoteViewModel.fetchNotes()');
+
+      final data = await _noteService.fetchNotes();
+      _notes = data.map((e) => NoteModel.fromJson(e)).toList();
+
+      print('🟢 Notes loaded: ${_notes.length}');
     } catch (e) {
       _error = 'Failed to load notes';
-      print('❌ Error: $e');
+      print('❌ Fetch notes error: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
-      print('🔵 NoteViewModel.fetchNotes() END');
+      _setLoading(false);
     }
+  }
+
+  /// Create note
+  Future<void> createNote({
+    required String title,
+    required String content,
+  }) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      print('🟡 NoteViewModel.createNote()');
+
+      await _noteService.createNote(
+        title: title,
+        content: content,
+      );
+
+      print('🟢 Note created, refreshing list');
+      await fetchNotes();
+    } catch (e) {
+      _error = 'Failed to create note';
+      print('❌ Create note error: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 }
