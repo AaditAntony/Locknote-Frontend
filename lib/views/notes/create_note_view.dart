@@ -39,24 +39,16 @@ class _CreateNoteViewState extends State<CreateNoteView> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Title is required';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Title required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _contentController,
                 decoration: const InputDecoration(labelText: 'Content'),
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Content is required';
-                  }
-                  return null;
-                },
+                maxLines: 6,
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Content required' : null,
               ),
               const SizedBox(height: 24),
 
@@ -64,19 +56,16 @@ class _CreateNoteViewState extends State<CreateNoteView> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                 onPressed: () async {
-                  print('🟡 Create Note button pressed');
-
                   if (_formKey.currentState!.validate()) {
+                    print('🟡 Creating note...');
                     await noteVM.createNote(
                       title: _titleController.text.trim(),
                       content: _contentController.text.trim(),
                     );
 
-                    if (noteVM.error != null && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(noteVM.error!)),
-                      );
-                    } else if (context.mounted) {
+                    if (context.mounted) {
+                      print('🟢 Refreshing notes list');
+                      await noteVM.fetchNotes();
                       Navigator.pop(context);
                     }
                   }
