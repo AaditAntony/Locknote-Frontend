@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/note_viewmodel.dart';
+import '../auth/login_view.dart';
 import 'create_note_view.dart';
 
 class NotesListView extends StatefulWidget {
@@ -27,7 +29,30 @@ class _NotesListViewState extends State<NotesListView> {
       appBar: AppBar(
         title: const Text('My Notes'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              print('🔴 Logout tapped');
+
+              final authVM = context.read<AuthViewModel>();
+              final noteVM = context.read<NoteViewModel>();
+
+              await authVM.logout();
+              noteVM.clearNotes();
+
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginView()),
+                      (route) => false,
+                );
+              }
+            },
+          ),
+        ],
       ),
+
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
