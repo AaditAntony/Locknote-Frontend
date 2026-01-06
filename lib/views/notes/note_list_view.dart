@@ -86,17 +86,29 @@ class _NotesListViewState extends State<NotesListView> {
               ),
 
               // 👉 EDIT ICON
-              trailing: IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EditNoteView(note: note),
-                    ),
-                  );
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditNoteView(note: note),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      context.read<NoteViewModel>().deleteNote(note.id);
+                    },
+                  ),
+                ],
               ),
+
             ),
 
           );

@@ -64,5 +64,10 @@ class NoteService {
 
     print('📥 Update status: ${response.statusCode}');
   }
+  Future<void> deleteNote(int noteId) async {
+    await ApiClient.dio.delete(
+      '${ApiConstants.notes}/$noteId',
+    );
+  }
 
 }

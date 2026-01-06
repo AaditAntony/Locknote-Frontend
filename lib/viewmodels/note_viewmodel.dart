@@ -102,6 +102,18 @@ class NoteViewModel extends ChangeNotifier {
 
     print('🟢 Note updated in memory');
   }
+  Future<void> deleteNote(int noteId) async {
+    try {
+      await _noteService.deleteNote(noteId);
+
+      // remove from local list
+      _notes.removeWhere((note) => note.id == noteId);
+
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
 
 
 }
