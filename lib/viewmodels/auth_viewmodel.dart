@@ -73,4 +73,12 @@ class AuthViewModel extends ChangeNotifier {
     _isLoading = value;
     notifyListeners();
   }
+
+  Future<void> logout() async {
+    print('🔴 Logging out...');
+    await TokenStorage.clearToken();
+    _error = null;
+    notifyListeners();
+  }
+
 }
