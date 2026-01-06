@@ -64,4 +64,11 @@ class NoteViewModel extends ChangeNotifier {
     _isLoading = value;
     notifyListeners();
   }
+  
+  void clearNotes() {
+    print('🧹 Clearing notes from memory');
+    _notes.clear();
+    notifyListeners();
+  }
+
 }
