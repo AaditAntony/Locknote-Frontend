@@ -4,6 +4,7 @@ import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/note_viewmodel.dart';
 import '../auth/login_view.dart';
 import 'create_note_view.dart';
+import 'edit_note_view.dart';
 
 class NotesListView extends StatefulWidget {
   const NotesListView({super.key});
@@ -83,7 +84,21 @@ class _NotesListViewState extends State<NotesListView> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+
+              // 👉 EDIT ICON
+              trailing: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditNoteView(note: note),
+                    ),
+                  );
+                },
+              ),
             ),
+
           );
         },
       ),

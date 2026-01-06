@@ -71,4 +71,37 @@ class NoteViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  Future<void> updateNote({
+    required int id,
+    required String title,
+    required String content,
+  }) async {
+    print('🟡 NoteViewModel.updateNote()');
+
+    await _noteService.updateNote(
+      id: id,
+      title: title,
+      content: content,
+    );
+
+    final index = _notes.indexWhere((note) => note.id == id);
+
+    if (index != -1) {
+      final oldNote = _notes[index];
+
+      _notes[index] = NoteModel(
+        id: oldNote.id,
+        title: title,
+        content: content,
+        deleted: oldNote.deleted,
+      );
+
+      notifyListeners();
+    }
+
+    print('🟢 Note updated in memory');
+  }
+
+
 }
