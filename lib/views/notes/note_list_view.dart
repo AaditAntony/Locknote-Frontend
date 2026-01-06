@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/note_viewmodel.dart';
+import 'create_note_view.dart';
 
 class NotesListView extends StatefulWidget {
   const NotesListView({super.key});
@@ -14,7 +15,6 @@ class _NotesListViewState extends State<NotesListView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      print('🟡 NotesListView initState → fetchNotes');
       context.read<NoteViewModel>().fetchNotes();
     });
   }
@@ -23,27 +23,42 @@ class _NotesListViewState extends State<NotesListView> {
   Widget build(BuildContext context) {
     final noteVM = context.watch<NoteViewModel>();
 
-    if (noteVM.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (noteVM.error != null) {
-      return Scaffold(
-        body: Center(child: Text(noteVM.error!)),
-      );
-    }
-
     return Scaffold(
-      appBar: AppBar(title: const Text('My Notes')),
-      body: ListView.builder(
+      appBar: AppBar(
+        title: const Text('My Notes'),
+        centerTitle: true,
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print('🟡 Navigate to CreateNoteView');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreateNoteView()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+
+      body: noteVM.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : noteVM.notes.isEmpty
+          ? const Center(child: Text('No notes found'))
+          : ListView.builder(
         itemCount: noteVM.notes.length,
         itemBuilder: (context, index) {
           final note = noteVM.notes[index];
-          return ListTile(
-            title: Text(note.title),
-            subtitle: Text(note.content),
+          return Card(
+            margin: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 6),
+            child: ListTile(
+              title: Text(note.title),
+              subtitle: Text(
+                note.content,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           );
         },
       ),
