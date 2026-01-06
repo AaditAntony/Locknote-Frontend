@@ -46,4 +46,23 @@ class NoteService {
       rethrow;
     }
   }
+
+  Future<void> updateNote({
+    required int id,
+    required String title,
+    required String content,
+  }) async {
+    print('🟡 NoteService.updateNote()');
+
+    final response = await ApiClient.dio.put(
+      '/api/notes/$id',
+      data: {
+        'title': title,
+        'content': content,
+      },
+    );
+
+    print('📥 Update status: ${response.statusCode}');
+  }
+
 }
