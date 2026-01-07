@@ -74,7 +74,7 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logout(BuildContext context) async {
+  Future<void> logout() async {
     print('🔴 Logging out...');
     await TokenStorage.clearToken();
     _error = null;
