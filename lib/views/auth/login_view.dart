@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../viewmodels/auth_viewmodel.dart';
 import '../notes/note_list_view.dart';
 import 'register_view.dart';
@@ -28,82 +29,191 @@ class _LoginViewState extends State<LoginView> {
     final authVM = context.watch<AuthViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (v) =>
-                v == null || v.isEmpty ? 'Email required' : null,
+      backgroundColor: const Color(0xFF6A1B9A), // Deep purple
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 🔐 TOP BRAND AREA
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'LockNote',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Your private, encrypted notes',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (v) =>
-                v == null || v.length < 6 ? 'Min 6 chars' : null,
-              ),
-              const SizedBox(height: 24),
+            ),
 
-              if (authVM.isLoading)
-                const CircularProgressIndicator()
-              else
-                ElevatedButton(
-                  onPressed: () async {
-                    debugPrint('🟡 Login button pressed');
+            // 🧾 FORM AREA (BOTTOM SHEET STYLE)
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(32),
+                  ),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 8),
 
-                    if (_formKey.currentState!.validate()) {
-                      debugPrint('🟢 Form valid');
+                      const Text(
+                        'Login',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
 
-                      await authVM.login(
-                        email: _emailController.text.trim(),
-                        password: _passwordController.text.trim(),
-                      );
+                      const SizedBox(height: 32),
 
-                      debugPrint('🔵 Login call returned');
+                      // 📧 Email
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          prefixIcon: const Icon(Icons.email),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email is required';
+                          }
+                          return null;
+                        },
+                      ),
 
-                      if (authVM.error != null) {
-                        debugPrint('🔴 Login error: ${authVM.error}');
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(authVM.error!)),
-                          );
-                        }
-                      } else {
-                        debugPrint('✅ Login success → Navigate');
-                        if (context.mounted) {
-                          Navigator.pushReplacement(
+                      const SizedBox(height: 16),
+
+                      // 🔑 Password
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          prefixIcon: const Icon(Icons.lock),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 🔄 Login Button
+                      authVM.isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          const Color(0xFF6A1B9A),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            await authVM.login(
+                              email: _emailController.text.trim(),
+                              password:
+                              _passwordController.text.trim(),
+                            );
+
+                            if (!mounted) return;
+
+                            if (authVM.error != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authVM.error!),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                  const NotesListView(),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // ➕ Register
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const NotesListView(),
+                              builder: (_) => const RegisterView(),
                             ),
                           );
-                        }
-                      }
-                    }
-                  },
-                  child: const Text('Login'),
+                        },
+                        child: const Text(
+                          "Create a new account",
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const RegisterView(),
-                    ),
-                  );
-                },
-                child: const Text("Don't have an account? Register"),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
