@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodels/auth_viewmodel.dart';
+
 import '../../viewmodels/note_viewmodel.dart';
-import '../auth/login_view.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 import 'create_note_view.dart';
-import 'edit_note_view.dart';
 import 'note_detail_view.dart';
+import 'edit_note_view.dart';
 
 class NotesListView extends StatefulWidget {
   const NotesListView({super.key});
@@ -28,100 +28,177 @@ class _NotesListViewState extends State<NotesListView> {
     final noteVM = context.watch<NoteViewModel>();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F3F8),
+
+      // 🟣 APP BAR
       appBar: AppBar(
-        title: const Text('My Notes'),
-        centerTitle: true,
+        backgroundColor: const Color(0xFF6A1B9A),
+        title: const Text(
+          'My Notes',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              print('🔴 Logout tapped');
-
-              final authVM = context.read<AuthViewModel>();
-              final noteVM = context.read<NoteViewModel>();
-
-              await authVM.logout();
-              noteVM.clearNotes();
-
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginView()),
-                      (route) => false,
-                );
-              }
+            onPressed: () {
+              context.read<AuthViewModel>().logout(context);
             },
           ),
         ],
       ),
 
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('🟡 Navigate to CreateNoteView');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CreateNoteView()),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-
+      // 📄 BODY
       body: noteVM.isLoading
           ? const Center(child: CircularProgressIndicator())
           : noteVM.notes.isEmpty
-          ? const Center(child: Text('No notes found'))
+          ? _emptyState()
           : ListView.builder(
+        padding: const EdgeInsets.all(16),
         itemCount: noteVM.notes.length,
         itemBuilder: (context, index) {
           final note = noteVM.notes[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 6),
-            child: ListTile(
-              title: Text(note.title),
-              subtitle: Text(
-                note.content,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => NoteDetailView(note: note),
-                    ),
-                  );
-                },
-              // 👉 EDIT ICON
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => EditNoteView(note: note),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      context.read<NoteViewModel>().deleteNote(note.id);
-                    },
+
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NoteDetailView(note: note),
+                ),
+              );
+            },
+            onLongPress: () {
+              _showOptions(context, note);
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 📝 TITLE
+                  Text(
+                    note.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
 
+                  const SizedBox(height: 8),
+
+                  // 📄 CONTENT PREVIEW
+                  Text(
+                    note.content,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
             ),
-
           );
         },
       ),
+
+      // ➕ FAB
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF6A1B9A),
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CreateNoteView(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // 🟣 EMPTY STATE
+  Widget _emptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.note_alt_outlined,
+            size: 80,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No notes yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap + to create your first note',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ⚙️ OPTIONS SHEET
+  void _showOptions(BuildContext context, note) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditNoteView(note: note),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Delete'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.read<NoteViewModel>().deleteNote(note.id);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
